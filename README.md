@@ -1,2 +1,2 @@
 # Fivem-custom-plate
-Adds custom plates based on pngs
+Simple Scipt for replace car plate with image url
