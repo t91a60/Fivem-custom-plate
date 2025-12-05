@@ -122,7 +122,7 @@ print("Normal URL:", state.normalUrl)
 
 ## License
 
-Created by Boryss#6534
+Created by t91a60 (discord: .borys_)
 
 ## Support
 
