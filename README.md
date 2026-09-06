@@ -1,129 +1,119 @@
-# FiveM Custom License Plate Resource
+# FiveM Custom Plates
 
-A production-ready, optimized FiveM resource for custom license plates using CreateDui runtime texture replacement. Supports ESX, QBCore, and Ox_Core frameworks with automatic detection.
+A client-side FiveM resource that replaces GTA V license-plate textures with images loaded through DUI runtime textures. It can replace the diffuse texture, an optional normal map, or both.
 
 ## Features
 
-- **Framework Support**: Automatic detection of ESX, QBCore, or Ox_Core frameworks
-- **Async DUI Creation**: Non-blocking texture loading prevents client freezing
-- **Diffuse & Normal Maps**: Support for both main texture and normal map (bump mapping)
-- **Configurable Resolution**: Easily adjust DUI resolution for quality/performance balance
-- **Optimized**: Runs initialization once on resource start, no generic loops
-- **Error Handling**: Comprehensive error checking and logging
-- **Exports**: Query plate state from other resources
+- Replaces the configured `vehshare` plate textures at resource startup.
+- Supports one diffuse image and an optional normal-map image.
+- Configurable DUI width and height for the quality/VRAM trade-off.
+- Detects ESX, QBCore, or Ox Core and falls back to standalone mode.
+- Initializes once, reports configuration errors, and destroys DUI objects when the resource stops.
+- Exposes initialization state to other client resources.
+
+The replacement is global for the texture names listed in `Config.PlateTextures` and `Config.PlateNormalTextures`. This resource does not assign a different image to each vehicle or plate number.
 
 ## Installation
 
-1. Clone or download this resource into your `resources` folder
-2. Add to your `server.cfg`:
-   ```
-   ensure custom-plate
-   ```
+1. Place the repository in your FiveM server's `resources` directory. You may rename the folder to a short resource name such as `custom-plate`.
+2. Set at least `Config.DiffuseImageUrl` in `config.lua`.
+3. Add the resource to `server.cfg`, using the actual folder name:
+
+```text
+ensure custom-plate
+```
+
+4. Restart the resource or server and check the client console for `[CustomPlate]` messages.
 
 ## Configuration
 
-Edit `config.lua` to customize:
+All user-facing settings are in `config.lua`.
 
-### Framework Selection
+### Framework
+
 ```lua
-Config.Framework = 'auto'  -- 'auto', 'esx', 'qbcore', 'ox', or 'standalone'
+Config.Framework = 'auto'
 ```
 
-### Texture URLs
+Accepted values are `auto`, `esx`, `qbcore`, `ox`, and `standalone`. Framework integration is currently limited to detection and helper setup; texture replacement also works without a framework.
+
+### Images
+
 ```lua
-Config.DiffuseImageUrl = "https://example.com/plate-diffuse.png"  -- Main plate texture
-Config.NormalMapUrl = "https://example.com/plate-normal.png"      -- Bump map (optional)
+Config.DiffuseImageUrl = 'https://example.com/plate-diffuse.png'
+Config.NormalMapUrl = 'https://example.com/plate-normal.png' -- optional
 ```
 
-### DUI Resolution
+The URLs must be reachable by players' FiveM clients. The configuration recommends images around `1200×700` with a matching aspect ratio for diffuse and normal textures.
+
+### Runtime texture size
+
 ```lua
-Config.DuiWidth = 540   -- Width in pixels
-Config.DuiHeight = 300  -- Height in pixels
+Config.DuiWidth = 540
+Config.DuiHeight = 300
 ```
 
-### Plate Targets
-Customize which textures are replaced:
+Higher values can improve detail but consume more VRAM. Start with the defaults and increase them only when the source image and target display justify it.
+
+### Target textures
+
 ```lua
 Config.PlateTextures = {
-	{ dictionary = "vehshare", texture = "plate01" },
-	{ dictionary = "vehshare", texture = "plate02" },
-	-- Add more as needed
+    { dictionary = 'vehshare', texture = 'plate01' },
+    { dictionary = 'vehshare', texture = 'plate02' },
 }
 
 Config.PlateNormalTextures = {
-	{ dictionary = "vehshare", texture = "plate01_n" },
-	{ dictionary = "vehshare", texture = "plate02_n" },
-	-- Add more as needed
+    { dictionary = 'vehshare', texture = 'plate01_n' },
+    { dictionary = 'vehshare', texture = 'plate02_n' },
 }
 ```
 
-### Debug Logging
+The default configuration covers `plate01` through `plate05` and their `_n` normal-map variants.
+
+### Debug output
+
 ```lua
-Config.Debug = false  -- Set to true for detailed console output
+Config.Debug = true
 ```
 
-## Image Requirements
+Debug mode adds detailed client-console messages for DUI creation and individual texture replacements.
 
-- **Recommended Resolution**: 1200x700 pixels (or similar aspect ratio)
-- **Format**: PNG or JPG
-- **Hosting**: Must be accessible via HTTP/HTTPS URL
+## Exports
 
-## Usage
+Call the exports with the name of the folder installed on your server:
 
-### Basic Setup
-
-1. Prepare your custom plate images (diffuse and optionally normal map)
-2. Host them on a web server or CDN
-3. Update `config.lua` with the URLs
-4. Restart the resource
-
-### Querying Plate State
-
-From another resource:
 ```lua
-local isInitialized = exports['custom-plate']:IsInitialized()
+local ready = exports['custom-plate']:IsInitialized()
 local state = exports['custom-plate']:GetPlateState()
 
-print("Initialized:", state.initialized)
-print("Diffuse URL:", state.diffuseUrl)
-print("Normal URL:", state.normalUrl)
+print('Initialized:', ready)
+print('Replacements applied:', state.replacementsApplied)
+print('Diffuse URL:', state.diffuseUrl)
+print('Normal URL:', state.normalUrl)
 ```
 
-## How It Works
-
-1. **Resource Start**: Initializes framework detection and creates runtime texture dictionary
-2. **DUI Creation**: Asynchronously loads diffuse and normal map images
-3. **Texture Replacement**: Applies loaded textures to all configured plate models
-4. **Resource Stop**: Cleans up DUI objects and textures
-
-## Performance Considerations
-
-- **One-time Initialization**: Texture replacement runs once on resource start
-- **Async Loading**: DUI creation doesn't block the main client thread
-- **VRAM Usage**: Higher resolutions use more VRAM; 540x300 is recommended
-- **Network**: Image loading depends on CDN/server response time
+`GetPlateState()` returns `initialized`, `replacementsApplied`, `diffuseUrl`, and `normalUrl`.
 
 ## Troubleshooting
 
-### Plates not showing custom texture
-- Check `config.lua` for valid image URLs
-- Verify images are accessible (test URLs in browser)
-- Enable `Config.Debug = true` for detailed logging
-- Check console for error messages
+If the plate texture does not appear:
 
-### Client freezing during load
-- Reduce `Config.DuiWidth` and `Config.DuiHeight`
-- Ensure images are optimized and not too large
-- Check network connectivity
+1. Confirm that `Config.DiffuseImageUrl` is non-empty and publicly reachable.
+2. Enable `Config.Debug` and inspect the FiveM client console.
+3. Verify that the configured texture dictionary and names match the vehicle assets.
+4. Reduce the DUI dimensions and image file size if clients struggle to load the image.
+5. Ensure a selected framework starts before this resource, or use `standalone`.
 
-### Framework not detected
-- Ensure the framework resource is started before this resource
-- Set `Config.Framework` explicitly if auto-detection fails
+## Project structure
+
+```text
+__resource.lua        FiveM resource manifest
+config.lua            framework, image, resolution, and texture settings
+script/framework.lua  framework detection helpers
+script/plate.lua      DUI lifecycle and texture replacement
+```
 
 ## License
 
-Created by t91a60 (discord: .borys_)
-
-## Support
-
-For issues or questions, refer to the debug logging output or check the console for error messages.
+This repository does not currently include a license file. Contact the repository owner before reusing or redistributing the code.
