@@ -1,62 +1,33 @@
--- ============================================================================
--- CUSTOM LICENSE PLATE RESOURCE - CONFIGURATION
--- ============================================================================
-
 Config = {}
 
--- ============================================================================
--- FRAMEWORK CONFIGURATION
--- ============================================================================
--- Options: 'auto', 'esx', 'qbcore', 'ox'
--- 'auto' will attempt to detect the framework automatically
+-- Optional compatibility setting: auto, standalone, esx, qbcore, ox.
+-- Texture replacement does not require a framework.
 Config.Framework = 'auto'
 
--- ============================================================================
--- TEXTURE CONFIGURATION
--- ============================================================================
--- Diffuse Image (main plate texture)
--- Recommended resolution: 1200x700 or similar aspect ratio
-Config.DiffuseImageUrl = ""  -- Paste your diffuse image URL here
+-- Existing http(s) URLs still work. Prefer assets/plate.png for a bundled image.
+-- At least one source is required. Empty values disable that channel.
+Config.DiffuseImageUrl = ''
+Config.NormalMapUrl = ''
 
--- Normal Map Image (bump/detail map for 3D effect)
--- Recommended resolution: 1200x700 (same as diffuse for consistency)
-Config.NormalMapUrl = ""     -- Paste your normal map URL here
-
--- ============================================================================
--- DUI RESOLUTION
--- ============================================================================
--- Width and height of the DUI texture
--- Higher values = better quality but more VRAM usage
--- Recommended: 540x300 for balanced quality/performance
+-- Keep the image composition and aspect ratio suited to your vehicle's plate UVs.
 Config.DuiWidth = 540
 Config.DuiHeight = 300
+Config.DuiTimeoutMs = 10000
 
--- ============================================================================
--- PLATE TEXTURE TARGETS
--- ============================================================================
--- Define which textures to replace
--- Format: { dictionary = "vehshare", texture = "plate01" }
 Config.PlateTextures = {
-	-- Diffuse textures (main appearance)
-	{ dictionary = "vehshare", texture = "plate01" },
-	{ dictionary = "vehshare", texture = "plate02" },
-	{ dictionary = "vehshare", texture = "plate03" },
-	{ dictionary = "vehshare", texture = "plate04" },
-	{ dictionary = "vehshare", texture = "plate05" },
+    { dictionary = 'vehshare', texture = 'plate01' },
+    { dictionary = 'vehshare', texture = 'plate02' },
+    { dictionary = 'vehshare', texture = 'plate03' },
+    { dictionary = 'vehshare', texture = 'plate04' },
+    { dictionary = 'vehshare', texture = 'plate05' },
 }
-
 Config.PlateNormalTextures = {
-	-- Normal map textures (bump/detail)
-	{ dictionary = "vehshare", texture = "plate01_n" },
-	{ dictionary = "vehshare", texture = "plate02_n" },
-	{ dictionary = "vehshare", texture = "plate03_n" },
-	{ dictionary = "vehshare", texture = "plate04_n" },
-	{ dictionary = "vehshare", texture = "plate05_n" },
+    { dictionary = 'vehshare', texture = 'plate01_n' },
+    { dictionary = 'vehshare', texture = 'plate02_n' },
+    { dictionary = 'vehshare', texture = 'plate03_n' },
+    { dictionary = 'vehshare', texture = 'plate04_n' },
+    { dictionary = 'vehshare', texture = 'plate05_n' },
 }
 
--- ============================================================================
--- DEBUG & LOGGING
--- ============================================================================
-Config.Debug = false  -- Set to true for detailed console logging
-
+Config.Debug = false
 return Config
